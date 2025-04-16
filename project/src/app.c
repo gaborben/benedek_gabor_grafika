@@ -16,7 +16,7 @@ void init_app(App* app, int width, int height)
     }
 
     app->window = SDL_CreateWindow(
-        "Cube!",
+        "Project!",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         width, height,
         SDL_WINDOW_OPENGL);
@@ -44,6 +44,9 @@ void init_app(App* app, int width, int height)
     init_scene(&(app->scene));
 
     app->is_running = true;
+
+    SDL_ShowCursor(SDL_DISABLE);
+    SDL_SetRelativeMouseMode(SDL_TRUE);
 }
 
 void init_opengl()
@@ -100,14 +103,10 @@ void reshape(GLsizei width, GLsizei height)
 void handle_app_events(App* app)
 {
     SDL_Event event;
-    static bool is_mouse_down = false;
-    static int mouse_x = 0;
-    static int mouse_y = 0;
-    int x;
-    int y;
 
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
+
         case SDL_KEYDOWN:
             switch (event.key.keysym.scancode) {
             case SDL_SCANCODE_ESCAPE:
@@ -129,6 +128,7 @@ void handle_app_events(App* app)
                 break;
             }
             break;
+
         case SDL_KEYUP:
             switch (event.key.keysym.scancode) {
             case SDL_SCANCODE_W:
@@ -143,28 +143,23 @@ void handle_app_events(App* app)
                 break;
             }
             break;
-        case SDL_MOUSEBUTTONDOWN:
-            is_mouse_down = true;
-            break;
+
         case SDL_MOUSEMOTION:
-            SDL_GetMouseState(&x, &y);
-            if (is_mouse_down) {
-                rotate_camera(&(app->camera), mouse_x - x, mouse_y - y);
-            }
-            mouse_x = x;
-            mouse_y = y;
+            rotate_camera(&(app->camera), -event.motion.xrel, -event.motion.yrel);
             break;
-        case SDL_MOUSEBUTTONUP:
-            is_mouse_down = false;
-            break;
+        
+        
+
         case SDL_QUIT:
             app->is_running = false;
             break;
+
         default:
             break;
         }
     }
 }
+
 
 void update_app(App* app)
 {
