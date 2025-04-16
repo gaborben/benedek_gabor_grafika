@@ -17,9 +17,15 @@ void init_camera(Camera* camera)
     camera->speed.z = 0.0;
 
     camera->is_preview_visible = false;
+
+    camera->run_multiplier = 1.0f;
+    camera->is_crouching = false;
+    camera->vertical_speed = 0.0f;
+
+
 }
 
-void update_camera(Camera* camera, double time)
+void update_camera(Camera* camera, double delta)
 {
     double angle;
     double side_angle;
@@ -27,10 +33,20 @@ void update_camera(Camera* camera, double time)
     angle = degree_to_radian(camera->rotation.z);
     side_angle = degree_to_radian(camera->rotation.z + 90.0);
 
-    camera->position.x += cos(angle) * camera->speed.y * time;
-    camera->position.y += sin(angle) * camera->speed.y * time;
-    camera->position.x += cos(side_angle) * camera->speed.x * time;
-    camera->position.y += sin(side_angle) * camera->speed.x * time;
+    camera->position.x += cos(angle) * camera->speed.y * camera->run_multiplier * delta;
+    camera->position.y += sin(angle) * camera->speed.y * camera->run_multiplier * delta;
+    camera->position.x += cos(side_angle) * camera->speed.x * camera->run_multiplier * delta;
+    camera->position.y += sin(side_angle) * camera->speed.x * camera->run_multiplier * delta;
+
+    camera->position.z += camera->vertical_speed * delta;
+
+    camera->vertical_speed -= GRAVITY * delta;
+
+    float ground = camera->is_crouching ? 0.5f : 1.0f;
+    if (camera->position.z < ground) {
+        camera->position.z = ground;
+        camera->vertical_speed = 0.0f;
+    }
 }
 
 void set_view(const Camera* camera)
@@ -76,6 +92,32 @@ void set_camera_side_speed(Camera* camera, double speed)
 {
     camera->speed.x = speed;
 }
+
+void set_camera_run_speed(Camera* camera, bool is_running)
+{
+    camera->run_multiplier = is_running ? 4.0 : 1.0;
+}
+
+void set_camera_crouch(Camera* camera, bool is_crouching)
+{
+    camera->is_crouching = is_crouching;
+
+    if (is_crouching) {
+        camera->position.z = 0.5f;
+    }
+    else {
+        camera->position.z = 1.0f;
+    }
+}
+
+void jump_camera(Camera* camera)
+{
+    if (!camera->is_crouching && camera->position.z <= 1.0f + 1e-3f) {
+        camera->vertical_speed = JUMP_IMPULSE;
+    }
+}
+
+
 
 void show_texture_preview()
 {
