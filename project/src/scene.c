@@ -7,8 +7,6 @@ int grass_texture;
 
 void init_scene(Scene* scene)
 {
-    // load_model(&(scene->cube), "assets/models/cube.obj");
-    // scene->texture_id = load_texture("assets/textures/cube.png");
     load_model(&(scene->cube), "assets/models/cube.obj");
     scene->texture_id = load_texture("assets/textures/cube.png");
     grass_texture = load_texture("assets/textures/grass.jpg");
@@ -106,16 +104,16 @@ void draw_ground()
 {
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, grass_texture);
-    glColor3f(1, 1, 1);
+    //glColor3f(1, 1, 1);
 
     glBegin(GL_QUADS);
-        glTexCoord2f(0, 0);    glVertex3f(-100, -100, 0);
-        glTexCoord2f(50, 0);   glVertex3f( 100, -100, 0);
-        glTexCoord2f(50, 50);  glVertex3f( 100,  100, 0);
-        glTexCoord2f(0, 50);   glVertex3f(-100,  100, 0);
-
+        glNormal3f(0, 0, 1);
+        glTexCoord2f( 0,  0); glVertex3f(-100, -100, 0);
+        glTexCoord2f(50,  0); glVertex3f( 100, -100, 0);
+        glTexCoord2f(50, 50); glVertex3f( 100,  100, 0);
+        glTexCoord2f( 0, 50); glVertex3f(-100,  100, 0);
     glEnd();
 
     glDisable(GL_TEXTURE_2D);
-}   
+}
 

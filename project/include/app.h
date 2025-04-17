@@ -5,6 +5,7 @@
 #include "scene.h"
 
 #include <SDL2/SDL.h>
+#include <GL/gl.h>
 
 #include <stdbool.h>
 
@@ -19,6 +20,9 @@ typedef struct App
     double uptime;
     Camera camera;
     Scene scene;
+    float brightness;
+    bool show_guide;
+    GLuint guide_texture;
 } App;
 
 /**
