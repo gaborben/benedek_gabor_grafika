@@ -1,5 +1,7 @@
 #include "app.h"
+#include "explosion.h"
 
+#include <stdio.h>
 #include <SDL2/SDL_image.h>
 
 void init_app(App* app, int width, int height)
@@ -204,10 +206,8 @@ void destroy_app(App* app)
     if (app->gl_context != NULL) {
         SDL_GL_DeleteContext(app->gl_context);
     }
-
     if (app->window != NULL) {
         SDL_DestroyWindow(app->window);
     }
-
     SDL_Quit();
 }

@@ -33,7 +33,8 @@ void update_explosion(Explosion* explosion, double elapsed_time);
 /**
  * Render the particles.
  */
-void render_explosion(Explosion* explosion);
+//void render_explosion(Explosion* explosion);
+void render_explosion(const Explosion* explosion);
 
 /**
  * Deallocate the resources.

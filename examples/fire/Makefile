@@ -1,5 +1,5 @@
 all:
-	gcc -Iinclude/ -Iobj/ -Lobj/ src/app.c src/camera.c src/main.c src/scene.c src/explosion.c src/texture.c src/utils.c -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lobj -lopengl32 -lm -o blue_fire.exe -Wall -Wextra -Wpedantic
+	gcc -Iinclude/ src/app.c src/camera.c src/main.c src/scene.c src/explosion.c src/texture.c src/utils.c -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lobj -lopengl32 -lm -o fire.exe -Wall -Wextra -Wpedantic
 
 linux:
 	gcc -Iinclude/ src/app.c src/camera.c src/main.c src/scene.c src/explosion.c src/texture.c src/utils.c -lobj -lSDL2 -lSDL2_image -lGL -lm -o fire -Wall -Wextra -Wpedantic
