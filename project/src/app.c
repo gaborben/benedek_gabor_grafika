@@ -201,20 +201,19 @@ void handle_app_events(App* app)
 
 void update_app(App* app)
 {
-    double current_time;
-    double elapsed_time;
+    double current_time = SDL_GetTicks() / 1000.0;
+    double delta        = current_time - app->uptime;
+    app->uptime         = current_time;
 
-    current_time = (double)SDL_GetTicks() / 1000;
-    elapsed_time = current_time - app->uptime;
-    app->uptime = current_time;
-
-    update_camera(&(app->camera), elapsed_time);
-    update_scene(&(app->scene));
+    update_camera(&app->camera, delta);
+    update_scene(&app->scene,  delta);
 }
+
 
 void render_app(App* app)
 {
-    glClearColor(app->brightness, app->brightness, app->brightness, 1.0f);
+    //glClearColor(app->brightness, app->brightness, app->brightness, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW);
 

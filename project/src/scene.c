@@ -3,6 +3,8 @@
 #include <obj/load.h>
 #include <obj/draw.h>
 
+#include <GL/glu.h> 
+
 int grass_texture;
 
 void init_scene(Scene* scene)
@@ -10,6 +12,8 @@ void init_scene(Scene* scene)
     load_model(&(scene->cube), "assets/models/cube.obj");
     scene->texture_id = load_texture("assets/textures/cube.png");
     grass_texture = load_texture("assets/textures/grass.jpg");
+
+    init_explosion(&scene->explosion);
 
     glBindTexture(GL_TEXTURE_2D, scene->texture_id);
 
@@ -68,8 +72,9 @@ void set_material(const Material* material)
     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &(material->shininess));
 }
 
-void update_scene(Scene* scene)
+void update_scene(Scene* scene, double delta)
 {
+    update_explosion(&scene->explosion, delta);
 }
 
 void render_scene(const Scene* scene)
@@ -77,8 +82,9 @@ void render_scene(const Scene* scene)
     set_material(&(scene->material));
     set_lighting();
     draw_ground();  
-    draw_origin();
-    draw_model(&(scene->cube));
+    //draw_origin();
+    //draw_model(&(scene->cube));
+    render_explosion(&scene->explosion);
 }
 
 void draw_origin()
@@ -116,4 +122,3 @@ void draw_ground()
 
     glDisable(GL_TEXTURE_2D);
 }
-

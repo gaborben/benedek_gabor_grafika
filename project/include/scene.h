@@ -3,6 +3,7 @@
 
 #include "camera.h"
 #include "texture.h"
+#include "explosion.h"
 
 #include <obj/model.h>
 
@@ -11,6 +12,8 @@ typedef struct Scene
     Model cube;
     Material material;
     GLuint texture_id;
+
+    Explosion explosion;
 } Scene;
 
 /**
@@ -31,7 +34,7 @@ void set_material(const Material* material);
 /**
  * Update the scene.
  */
-void update_scene(Scene* scene);
+void update_scene(Scene* scene, double delta);
 
 /**
  * Render the scene objects.
@@ -44,5 +47,6 @@ void render_scene(const Scene* scene);
 void draw_origin();
 
 void draw_ground();
+
 
 #endif /* SCENE_H */
