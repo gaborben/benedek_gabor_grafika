@@ -4,7 +4,7 @@
 
 #include <SDL2/SDL_image.h>
 
-static void draw_guide(const App* app);
+static void draw_image(const App* app, GLuint texture);
 static void collect_sticks(App* app);
 static int find_near_tree_index(const App* app, float radius);
 
@@ -60,6 +60,7 @@ void init_app(App* app, int width, int height)
 
     app->show_guide = false;
     app->guide_texture = load_texture("assets/textures/guide.png");
+    app->game_over_texture = load_texture("assets/textures/game_over.png");
 }
 
 void init_opengl()
@@ -121,38 +122,49 @@ void reshape(GLsizei width, GLsizei height)
 void handle_app_events(App* app)
 {
     SDL_Event event;
-
     while (SDL_PollEvent(&event)) {
-        switch (event.type) {
 
+        if (app->scene.game_state == GAME_OVER) {
+            if (event.type == SDL_KEYDOWN &&
+                event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+            {
+                app->is_running = false;
+            }
+            else if (event.type == SDL_QUIT) {
+                app->is_running = false;
+            }
+            continue;
+        }
+
+        switch (event.type) {
         case SDL_KEYDOWN:
             switch (event.key.keysym.scancode) {
-            case SDL_SCANCODE_F1:
-                app->show_guide = !app->show_guide;
-                break;
             case SDL_SCANCODE_ESCAPE:
                 app->is_running = false;
                 break;
+            case SDL_SCANCODE_F1:
+                app->show_guide = !app->show_guide;
+                break;
             case SDL_SCANCODE_W:
-                set_camera_speed(&(app->camera), 1);
+                set_camera_speed(&app->camera,  1);
                 break;
             case SDL_SCANCODE_S:
-                set_camera_speed(&(app->camera), -1);
+                set_camera_speed(&app->camera, -1);
                 break;
             case SDL_SCANCODE_A:
-                set_camera_side_speed(&(app->camera), 1);
+                set_camera_side_speed(&app->camera,  1);
                 break;
             case SDL_SCANCODE_D:
-                set_camera_side_speed(&(app->camera), -1);
+                set_camera_side_speed(&app->camera, -1);
                 break;
             case SDL_SCANCODE_LSHIFT:
-                set_camera_run_speed(&(app->camera), true);
+                set_camera_run_speed(&app->camera, true);
                 break;
             case SDL_SCANCODE_C:
-                set_camera_crouch(&(app->camera), true);
+                set_camera_crouch(&app->camera, true);
                 break;
             case SDL_SCANCODE_SPACE:
-                jump_camera(&(app->camera));
+                jump_camera(&app->camera);
                 break;
             case SDL_SCANCODE_N:
                 app->brightness = fmaxf(0.0f, app->brightness - 0.1f);
@@ -170,19 +182,17 @@ void handle_app_events(App* app)
 
         case SDL_KEYUP:
             switch (event.key.keysym.scancode) {
-            case SDL_SCANCODE_W:
-            case SDL_SCANCODE_S:
-                set_camera_speed(&(app->camera), 0);
+            case SDL_SCANCODE_W: case SDL_SCANCODE_S:
+                set_camera_speed(&app->camera, 0);
                 break;
-            case SDL_SCANCODE_A:
-            case SDL_SCANCODE_D:
-                set_camera_side_speed(&(app->camera), 0);
+            case SDL_SCANCODE_A: case SDL_SCANCODE_D:
+                set_camera_side_speed(&app->camera, 0);
                 break;
             case SDL_SCANCODE_LSHIFT:
-                set_camera_run_speed(&(app->camera), false);
+                set_camera_run_speed(&app->camera, false);
                 break;
             case SDL_SCANCODE_C:
-                set_camera_crouch(&(app->camera), false);
+                set_camera_crouch(&app->camera, false);
                 break;
             default:
                 break;
@@ -190,10 +200,8 @@ void handle_app_events(App* app)
             break;
 
         case SDL_MOUSEMOTION:
-            rotate_camera(&(app->camera), -event.motion.xrel, -event.motion.yrel);
+            rotate_camera(&app->camera, -event.motion.xrel, -event.motion.yrel);
             break;
-        
-        
 
         case SDL_QUIT:
             app->is_running = false;
@@ -206,6 +214,7 @@ void handle_app_events(App* app)
 }
 
 
+
 void update_app(App* app)
 {
     double current_time = SDL_GetTicks() / 1000.0;
@@ -215,14 +224,26 @@ void update_app(App* app)
     update_camera(&app->camera, delta);
     update_scene(&app->scene,  delta);
 
-    if (app->scene.fire_strength <= 0.0f) {
-        app->scene.game_state = GAME_OVER;
+    if (app->scene.game_state == PLAYING) {
+        const float DECAY_RATE = 1.0f / 20.0f;
+        app->scene.fire_strength -= delta * DECAY_RATE;
+        if (app->scene.fire_strength <= 0.0f) {
+            app->scene.fire_strength = 0.0f;
+            app->scene.game_state = GAME_OVER;
+        }
+
+        app->scene.explosion.position = (vec3){ 0.0f, 0.0f, 0.0f };
+
+        app->scene.explosion.size_scale = app->scene.fire_strength;
     }
 
-    if (app->scene.game_state == GAME_OVER) {
-        app->is_running = false;
-        return;
-    }
+    // if (app->scene.fire_strength <= 0.0f) {
+    //     app->scene.game_state = GAME_OVER;
+    // }
+
+    // if (app->scene.game_state == GAME_OVER) {
+    //     app->is_running = false;
+    // }
 }
 
 
@@ -231,45 +252,46 @@ void render_app(App* app)
     //glClearColor(app->brightness, app->brightness, app->brightness, 1.0f);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glMatrixMode(GL_MODELVIEW);
 
-    glColor3f(app->brightness, app->brightness, app->brightness);
-
-    glPushMatrix();
-    set_view(&(app->camera));
-    render_scene(&(app->scene));
-    glPopMatrix();
-
-    glColor3f(1.0f, 1.0f, 1.0f);
-
-    if (app->camera.is_preview_visible) {
-        show_texture_preview();
+    if (app->scene.game_state == GAME_OVER) {
+        draw_image(app, app->game_over_texture);
     }
+    else {
+        glMatrixMode(GL_MODELVIEW);
+        glColor3f(app->brightness, app->brightness, app->brightness);
 
-    if (app->show_guide) {
-        draw_guide(app);
+        glPushMatrix();
+            set_view(&app->camera);
+            render_scene(&app->scene);
+        glPopMatrix();
+
+        glColor3f(1.0f, 1.0f, 1.0f);
+
+        if (app->camera.is_preview_visible) {
+            show_texture_preview();
+        }
+
+        if (app->show_guide) {
+            draw_image(app, app->guide_texture);
+        }
+
+        if (find_near_tree_index(app, 2.0f) >= 0) {
+            int w, h;
+            SDL_GetWindowSize(app->window, &w, &h);
+            draw_text_2d("Press E to collect stick", w/2.0f - 100.0f, h - 50.0f, 2.0f);
+        }
+
+        {
+            int w, h;
+            SDL_GetWindowSize(app->window, &w, &h);
+            char buf[32];
+            snprintf(buf, sizeof(buf), "Sticks: %d", app->sticks);
+            draw_text_2d(buf, (float)w - 150.0f, 20.0f, 2.0f);
+        }
     }
-
-    if (find_near_tree_index(app, 2.0f) >= 0) {
-        int w, h;
-        SDL_GetWindowSize(app->window, &w, &h);
-        draw_text_2d("Press E to collect stick", w/2.0f - 100.0f, h - 50.0f, 2.0f);
-    }
-
-    {
-        int w, h;
-        SDL_GetWindowSize(app->window, &w, &h);
-        char buf[32];
-        snprintf(buf, sizeof(buf), "Sticks: %d", app->sticks);
-        draw_text_2d(buf, (float)w - 150.0f, 20.0f, 2.0f);
-    }
-
 
     SDL_GL_SwapWindow(app->window);
 }
-
-
-
 
 
 void destroy_app(App* app)
@@ -290,53 +312,28 @@ void destroy_app(App* app)
     SDL_Quit();
 }
 
-static void draw_guide(const App* app)
+static void draw_image(const App* app, GLuint texture)
 {
+
     int w, h;
     SDL_GetWindowSize(app->window, &w, &h);
 
-    const float origW = 1024.0f;
-    const float origH = 1024.0f;
-
-    const float maxW = w * 0.8f;
-    const float maxH = h * 0.8f;
-
-    float scale = 1.0f;
-    if (origW > maxW || origH > maxH) {
-        float sx = maxW / origW;
-        float sy = maxH / origH;
-        scale = (sx < sy) ? sx : sy;
-    }
-
-    float drawW = origW * scale;
-    float drawH = origH * scale;
-
-    float x = (w - drawW) * 0.5f;
-    float y = (h - drawH) * 0.5f;
-
     glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-      glLoadIdentity();
-      glOrtho(0, w, 0, h, -1, 1);
+    glPushMatrix(); glLoadIdentity();
+    glOrtho(0, w, h, 0, -1, 1);
 
     glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-      glLoadIdentity();
+    glPushMatrix(); glLoadIdentity();
 
-      glDisable(GL_DEPTH_TEST);
-      glEnable(GL_TEXTURE_2D);
-      glBindTexture(GL_TEXTURE_2D, app->guide_texture);
-      glColor3f(1,1,1);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texture);
 
-      glBegin(GL_QUADS);
-        glTexCoord2f(0, 1); glVertex2f(x, y);
-        glTexCoord2f(1, 1); glVertex2f(x+drawW, y);
-        glTexCoord2f(1, 0); glVertex2f(x+drawW, y+drawH);
-        glTexCoord2f(0, 0); glVertex2f(x, y+drawH);
-      glEnd();
-
-      glDisable(GL_TEXTURE_2D);
-      glEnable(GL_DEPTH_TEST);
+    glBegin(GL_QUADS);
+      glTexCoord2f(0,0); glVertex2f(0,  0);
+      glTexCoord2f(1,0); glVertex2f(w,  0);
+      glTexCoord2f(1,1); glVertex2f(w,  h);
+      glTexCoord2f(0,1); glVertex2f(0,  h);
+    glEnd();
 
     glPopMatrix();
     glMatrixMode(GL_PROJECTION);

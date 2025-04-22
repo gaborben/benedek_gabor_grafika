@@ -17,6 +17,9 @@ void init_scene(Scene* scene)
     grass_texture = load_texture("assets/textures/grass.jpg");
 
     init_explosion(&scene->explosion);
+    scene->explosion.position.x = 3.0f;
+    scene->explosion.position.y = 0.0f;
+    scene->explosion.position.z = 0.0f;
 
     load_model(&scene->tree_prefab.trunk_model, "assets/models/tree.obj");
     scene->tree_prefab.trunk_tex = load_transparent_texture("assets/textures/tree.png");
@@ -94,37 +97,83 @@ void update_scene(Scene* scene, double delta)
     update_explosion(&scene->explosion, delta);
 }
 
+// void render_scene(const Scene* scene)
+// {
+//     set_material(&(scene->material));
+//     set_lighting();
+//     draw_ground();  
+//     //draw_origin();
+//     //draw_model(&(scene->cube));
+
+//     glEnable(GL_TEXTURE_2D);
+//     glEnable(GL_BLEND);
+//     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+//         for (int i = 0; i < scene->number_of_trees; ++i) {
+//         const Tree* T = &scene->trees[i];
+//         glPushMatrix();
+//           glTranslatef(T->position.x, T->position.y, T->position.z);
+//           glScalef   (0.2f, 0.2f, 0.2f);
+
+//           glBindTexture(GL_TEXTURE_2D, T->trunk_tex);
+//           draw_model(&T->trunk_model);
+
+//           glBindTexture(GL_TEXTURE_2D, T->leaves_tex);
+//           draw_model(&T->leaves_model);
+//         glPopMatrix();
+//     }
+
+//     glDisable(GL_BLEND);
+//     glDisable(GL_TEXTURE_2D);
+
+//     render_explosion(&scene->explosion);
+// }
+
 void render_scene(const Scene* scene)
 {
-    set_material(&(scene->material));
+    set_material(&scene->material);
     set_lighting();
-    draw_ground();  
-    //draw_origin();
-    //draw_model(&(scene->cube));
+    draw_ground();
 
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        for (int i = 0; i < scene->number_of_trees; ++i) {
+    for (int i = 0; i < scene->number_of_trees; ++i) {
         const Tree* T = &scene->trees[i];
         glPushMatrix();
           glTranslatef(T->position.x, T->position.y, T->position.z);
           glScalef   (0.2f, 0.2f, 0.2f);
-
           glBindTexture(GL_TEXTURE_2D, T->trunk_tex);
           draw_model(&T->trunk_model);
-
           glBindTexture(GL_TEXTURE_2D, T->leaves_tex);
           draw_model(&T->leaves_model);
         glPopMatrix();
     }
-
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
 
-    render_explosion(&scene->explosion);
+    {
+        float s = scene->fire_strength;
+
+        glPushMatrix();
+            glTranslatef(
+                scene->explosion.position.x,
+                scene->explosion.position.y,
+                scene->explosion.position.z
+            );
+
+            glPushMatrix();
+                glScalef(s, s, s);
+                glColor4f(1.0f, 1.0f, 1.0f, s);
+
+                render_explosion(&scene->explosion);
+            glPopMatrix();
+
+        glPopMatrix();
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    }
 }
+
 
 void draw_origin()
 {

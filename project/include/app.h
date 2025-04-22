@@ -24,6 +24,7 @@ typedef struct App
     float brightness;
     bool show_guide;
     GLuint guide_texture;
+    GLuint game_over_texture;
 } App;
 
 /**
