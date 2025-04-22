@@ -3,7 +3,10 @@
 #include <obj/load.h>
 #include <obj/draw.h>
 
-#include <GL/glu.h> 
+#include <GL/glu.h>
+
+#include <stdlib.h>
+#include <time.h>
 
 int grass_texture;
 
@@ -14,6 +17,17 @@ void init_scene(Scene* scene)
     grass_texture = load_texture("assets/textures/grass.jpg");
 
     init_explosion(&scene->explosion);
+
+    load_model(&scene->tree_prefab.trunk_model, "assets/models/tree.obj");
+    scene->tree_prefab.trunk_tex = load_transparent_texture("assets/textures/tree.png");
+    load_model(&scene->tree_prefab.leaves_model, "assets/models/leaves.obj");
+    scene->tree_prefab.leaves_tex  = load_transparent_texture("assets/textures/leaves.png");
+
+    scene->tree_prefab.position.x = 0;
+    scene->tree_prefab.position.y = 0;
+    scene->tree_prefab.position.z = 0;
+
+    generate_trees(scene);
 
     glBindTexture(GL_TEXTURE_2D, scene->texture_id);
 
@@ -84,6 +98,28 @@ void render_scene(const Scene* scene)
     draw_ground();  
     //draw_origin();
     //draw_model(&(scene->cube));
+
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        for (int i = 0; i < scene->number_of_trees; ++i) {
+        const Tree* T = &scene->trees[i];
+        glPushMatrix();
+          glTranslatef(T->position.x, T->position.y, T->position.z);
+          glScalef   (0.2f, 0.2f, 0.2f);
+
+          glBindTexture(GL_TEXTURE_2D, T->trunk_tex);
+          draw_model(&T->trunk_model);
+
+          glBindTexture(GL_TEXTURE_2D, T->leaves_tex);
+          draw_model(&T->leaves_model);
+        glPopMatrix();
+    }
+
+    glDisable(GL_BLEND);
+    glDisable(GL_TEXTURE_2D);
+
     render_explosion(&scene->explosion);
 }
 
@@ -122,3 +158,28 @@ void draw_ground()
 
     glDisable(GL_TEXTURE_2D);
 }
+
+void generate_trees(Scene* scene)
+{
+    scene->number_of_trees = 20;
+    scene->trees = malloc(sizeof(Tree) * scene->number_of_trees);
+    if (!scene->trees) {
+        fprintf(stderr, "Invalid trees allocation\n");
+        scene->number_of_trees = 0;
+        return;
+    }
+
+    srand((unsigned)time(NULL));
+    for (int i = 0; i < scene->number_of_trees; ++i) {
+
+        scene->trees[i] = scene->tree_prefab;
+
+        float rx = (rand() / (float)RAND_MAX) * 50.0f - 25.0f;
+        float ry = (rand() / (float)RAND_MAX) * 50.0f - 25.0f;
+
+        scene->trees[i].position.x = rx;
+        scene->trees[i].position.y = ry;
+        scene->trees[i].position.z = 0.0f;
+    }
+}
+

@@ -5,7 +5,17 @@
 #include "texture.h"
 #include "explosion.h"
 
+#include <GL/gl.h>
 #include <obj/model.h>
+#include "utils.h"
+
+typedef struct Tree {
+    Model  trunk_model;
+    GLuint trunk_tex;
+    Model  leaves_model;
+    GLuint leaves_tex;
+    vec3   position;
+} Tree;
 
 typedef struct Scene
 {
@@ -14,6 +24,10 @@ typedef struct Scene
     GLuint texture_id;
 
     Explosion explosion;
+
+    Tree* trees;
+    int number_of_trees;
+    Tree tree_prefab;
 } Scene;
 
 /**
@@ -48,5 +62,6 @@ void draw_origin();
 
 void draw_ground();
 
+void generate_trees(Scene* scene);
 
 #endif /* SCENE_H */

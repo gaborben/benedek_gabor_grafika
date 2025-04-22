@@ -110,7 +110,7 @@ void reshape(GLsizei width, GLsizei height)
     glFrustum(
         -.08, .08,
         -.06, .06,
-        .1, 10
+        .1, 100
     );
 }
 
@@ -245,6 +245,11 @@ void destroy_app(App* app)
 
     if (app->window != NULL) {
         SDL_DestroyWindow(app->window);
+    }
+
+    if (app->scene.trees) {
+        free(app->scene.trees);
+        app->scene.trees = NULL;
     }
 
     SDL_Quit();
