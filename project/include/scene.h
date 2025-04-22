@@ -8,6 +8,13 @@
 #include <GL/gl.h>
 #include <obj/model.h>
 #include "utils.h"
+#include <stdbool.h>
+
+typedef enum {
+    PLAYING,
+    GAME_OVER
+} GameState;
+
 
 typedef struct Tree {
     Model  trunk_model;
@@ -15,15 +22,19 @@ typedef struct Tree {
     Model  leaves_model;
     GLuint leaves_tex;
     vec3   position;
+    bool   collected;
 } Tree;
 
 typedef struct Scene
 {
+    GameState game_state;
+
     Model cube;
     Material material;
     GLuint texture_id;
 
     Explosion explosion;
+    float fire_strength;
 
     Tree* trees;
     int number_of_trees;

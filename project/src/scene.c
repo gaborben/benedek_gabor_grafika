@@ -27,6 +27,9 @@ void init_scene(Scene* scene)
     scene->tree_prefab.position.y = 0;
     scene->tree_prefab.position.z = 0;
 
+    scene->game_state = PLAYING;
+    scene->fire_strength = 1.0f;
+
     generate_trees(scene);
 
     glBindTexture(GL_TEXTURE_2D, scene->texture_id);
@@ -180,6 +183,8 @@ void generate_trees(Scene* scene)
         scene->trees[i].position.x = rx;
         scene->trees[i].position.y = ry;
         scene->trees[i].position.z = 0.0f;
+
+        scene->trees[i].collected = false;
     }
 }
 

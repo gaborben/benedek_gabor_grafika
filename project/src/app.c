@@ -5,6 +5,8 @@
 #include <SDL2/SDL_image.h>
 
 static void draw_guide(const App* app);
+static void collect_sticks(App* app);
+static int find_near_tree_index(const App* app, float radius);
 
 void init_app(App* app, int width, int height)
 {
@@ -53,6 +55,8 @@ void init_app(App* app, int width, int height)
     SDL_SetRelativeMouseMode(SDL_TRUE);
 
     app->brightness = 1.0f;
+
+    app->sticks = 0;
 
     app->show_guide = false;
     app->guide_texture = load_texture("assets/textures/guide.png");
@@ -156,6 +160,9 @@ void handle_app_events(App* app)
             case SDL_SCANCODE_M:
                 app->brightness = fminf(2.0f, app->brightness + 0.1f);
                 break;
+            case SDL_SCANCODE_E:
+                collect_sticks(app);
+                break;
             default:
                 break;
             }
@@ -202,11 +209,20 @@ void handle_app_events(App* app)
 void update_app(App* app)
 {
     double current_time = SDL_GetTicks() / 1000.0;
-    double delta        = current_time - app->uptime;
-    app->uptime         = current_time;
+    double delta = current_time - app->uptime;
+    app->uptime = current_time;
 
     update_camera(&app->camera, delta);
     update_scene(&app->scene,  delta);
+
+    if (app->scene.fire_strength <= 0.0f) {
+        app->scene.game_state = GAME_OVER;
+    }
+
+    if (app->scene.game_state == GAME_OVER) {
+        app->is_running = false;
+        return;
+    }
 }
 
 
@@ -234,8 +250,27 @@ void render_app(App* app)
         draw_guide(app);
     }
 
+    if (find_near_tree_index(app, 2.0f) >= 0) {
+        int w, h;
+        SDL_GetWindowSize(app->window, &w, &h);
+        draw_text_2d("Press E to collect stick", w/2.0f - 100.0f, h - 50.0f, 2.0f);
+    }
+
+    {
+        int w, h;
+        SDL_GetWindowSize(app->window, &w, &h);
+        char buf[32];
+        snprintf(buf, sizeof(buf), "Sticks: %d", app->sticks);
+        draw_text_2d(buf, (float)w - 150.0f, 20.0f, 2.0f);
+    }
+
+
     SDL_GL_SwapWindow(app->window);
 }
+
+
+
+
 
 void destroy_app(App* app)
 {
@@ -294,10 +329,10 @@ static void draw_guide(const App* app)
       glColor3f(1,1,1);
 
       glBegin(GL_QUADS);
-        glTexCoord2f(0, 1); glVertex2f(x      , y      );
-        glTexCoord2f(1, 1); glVertex2f(x+drawW, y      );
+        glTexCoord2f(0, 1); glVertex2f(x, y);
+        glTexCoord2f(1, 1); glVertex2f(x+drawW, y);
         glTexCoord2f(1, 0); glVertex2f(x+drawW, y+drawH);
-        glTexCoord2f(0, 0); glVertex2f(x      , y+drawH);
+        glTexCoord2f(0, 0); glVertex2f(x, y+drawH);
       glEnd();
 
       glDisable(GL_TEXTURE_2D);
@@ -308,5 +343,43 @@ static void draw_guide(const App* app)
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
 }
+
+static void collect_sticks(App* app)
+{
+    const float COLLECT_RADIUS = 2.0f;
+    float px = app->camera.position.x;
+    float py = app->camera.position.y;
+
+    for (int i = 0; i < app->scene.number_of_trees; ++i) {
+        Tree* tree = &app->scene.trees[i];
+        float dx = tree->position.x - px;
+        float dy = tree->position.y - py;
+        float dist = sqrtf(dx*dx + dy*dy);
+        if (dist < COLLECT_RADIUS && !tree->collected) {
+            tree->collected = true;
+            app->sticks += 1;
+            //printf("Sticks collected: %d\n", app->sticks);
+            break;
+        }
+    }
+}
+
+
+static int find_near_tree_index(const App* app, float radius)
+{
+    float px = app->camera.position.x;
+    float py = app->camera.position.y;
+    for (int i = 0; i < app->scene.number_of_trees; ++i) {
+        vec3 p = app->scene.trees[i].position;
+        float dx = p.x - px, dy = p.y - py;
+        float dist = sqrtf(dx*dx + dy*dy);
+        if (dist < radius) {
+            //printf("Near tree #%d at dist=%.2f\n", i, dist);
+            return i;
+        }
+    }
+    return -1;
+}
+
 
 

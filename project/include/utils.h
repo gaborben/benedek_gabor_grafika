@@ -37,4 +37,6 @@ typedef struct Material
  */
 double degree_to_radian(double degree);
 
+void draw_text_2d(const char* text, float x, float y, float scale);
+
 #endif /* UTILS_H */

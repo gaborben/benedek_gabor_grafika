@@ -20,6 +20,7 @@ typedef struct App
     double uptime;
     Camera camera;
     Scene scene;
+    int sticks;
     float brightness;
     bool show_guide;
     GLuint guide_texture;
