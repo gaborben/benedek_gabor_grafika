@@ -220,8 +220,22 @@ void update_app(App* app)
     double delta = current_time - app->uptime;
     app->uptime = current_time;
 
+    vec3 oldCamPos = app->camera.position;
+
     update_camera(&app->camera, delta);
     update_scene(&app->scene,  delta);
+
+    const float TREE_COLL_RADIUS = 0.5f;
+    for (int i = 0; i < app->scene.number_of_trees; ++i) {
+        vec3 tp = app->scene.trees[i].position;
+        float dx = app->camera.position.x - tp.x;
+        float dy = app->camera.position.y - tp.y;
+        float dist = sqrtf(dx*dx + dy*dy);
+        if (dist < TREE_COLL_RADIUS) {
+            app->camera.position = oldCamPos;
+            break;
+        }
+    }
 
     if (app->scene.game_state == PLAYING) {
         const float DECAY_RATE = 1.0f / 35.0f;
