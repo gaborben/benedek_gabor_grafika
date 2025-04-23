@@ -8,14 +8,14 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define GRAVITY_Z      -1.5
-#define MAX_LIFETIME    3.0
-#define PARTICLE_SCALE  (0.1f / 3.0f)
+#define GRAVITY_Z -1.5
+#define MAX_LIFETIME 3.0
+#define PARTICLE_SCALE (0.1f / 3.0f)
 
-#define MAX_HEIGHT   0.2
-#define BASE_RADIUS  0.2
-#define UP_SPEED     0.5
-#define SIDE_SPREAD  0.05
+#define MAX_HEIGHT 0.2
+#define BASE_RADIUS 0.2
+#define UP_SPEED 0.5
+#define SIDE_SPREAD 0.05
 
 static void reset_particle(Particle* p)
 {
@@ -68,54 +68,46 @@ const float fireX =  3.0f;
 const float fireY =  0.0f;
 const float fireZ =  0.0f;
 
-void render_explosion(const Explosion* explosion)
+void render_explosion(const Explosion* e)
 {
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_LIGHTING);
 
     glPushMatrix();
-      glTranslatef(fireX, fireY, fireZ);
+      glTranslatef(e->position.x, e->position.y, e->position.z);
+      glScalef(e->size_scale, e->size_scale, e->size_scale);
 
       for (int i = 0; i < N_PARTICLES; ++i) {
-          const Particle* p = &explosion->particles[i];
-
+          const Particle* p = &e->particles[i];
           glPushMatrix();
-            glTranslated(p->position.x,
-                        p->position.y,
-                        p->position.z);
-            glScaled(PARTICLE_SCALE,
-                     PARTICLE_SCALE,
-                     PARTICLE_SCALE);
+            glTranslatef(p->position.x, p->position.y, p->position.z);
+
+            float particleScale = PARTICLE_SCALE;
+            glScalef(particleScale, particleScale, particleScale);
 
             double lifetime = p->lifetime;
-            int phase      = (int)lifetime;
-            double t       = lifetime - phase;
+            int phase = (int)lifetime;
+            double t = lifetime - phase;
             switch (phase) {
-              case 0:
-                glColor3f(1.0f, 1.0f, 1.0f - t);
-                break;
-              case 1:
-                glColor3f(1.0f, 1.0f - t, 0.0f);
-                break;
-              case 2:
-                glColor3f(1.0f - t, 0.0f, 0.0f);
-                break;
-              default:
-                break;
+                case 0: glColor3f(1, 1, 1 - t); break;
+                case 1: glColor3f(1, 1 - t, 0); break;
+                case 2: glColor3f(1 - t, 0, 0); break;
+                default: glColor3f(0,0,0); break;
             }
 
-            draw_model(&explosion->model);
+            draw_model(&e->model);
           glPopMatrix();
       }
-
     glPopMatrix();
 
     glEnable(GL_LIGHTING);
     glEnable(GL_TEXTURE_2D);
 }
 
+
 void destroy_explosion(Explosion* explosion)
 {
     free_model(&explosion->model);
     glDeleteTextures(1, &explosion->texture_id);
 }
+

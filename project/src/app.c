@@ -232,7 +232,7 @@ void update_app(App* app)
             app->scene.game_state = GAME_OVER;
         }
 
-        app->scene.explosion.position = (vec3){ 0.0f, 0.0f, 0.0f };
+        app->scene.explosion.position = (vec3){ 3.0f, 0.0f, 0.0f };
 
         app->scene.explosion.size_scale = app->scene.fire_strength;
     }
@@ -314,16 +314,16 @@ void destroy_app(App* app)
 
 static void draw_image(const App* app, GLuint texture)
 {
-
-    int w, h;
+    int w,h;
     SDL_GetWindowSize(app->window, &w, &h);
 
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix(); glLoadIdentity();
-    glOrtho(0, w, h, 0, -1, 1);
+    glMatrixMode(GL_PROJECTION); glPushMatrix(); glLoadIdentity();
+    glOrtho(0,w,h,0,-1,1);
+    glMatrixMode(GL_MODELVIEW);  glPushMatrix(); glLoadIdentity();
 
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix(); glLoadIdentity();
+    glDisable(GL_LIGHTING);
+    glDisable(GL_DEPTH_TEST);
+    glColor3f(1.0f, 1.0f, 1.0f);
 
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -335,11 +335,14 @@ static void draw_image(const App* app, GLuint texture)
       glTexCoord2f(0,1); glVertex2f(0,  h);
     glEnd();
 
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_LIGHTING);
+
     glPopMatrix();
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
+    glMatrixMode(GL_PROJECTION); glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
 }
+
 
 static void collect_sticks(App* app)
 {

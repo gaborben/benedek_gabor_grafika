@@ -30,6 +30,8 @@ void init_scene(Scene* scene)
     scene->tree_prefab.position.y = 0;
     scene->tree_prefab.position.z = 0;
 
+    load_model(&scene->campfire_model, "assets/models/campfire.obj");
+
     scene->game_state = PLAYING;
     scene->fire_strength = 1.0f;
 
@@ -142,7 +144,7 @@ void render_scene(const Scene* scene)
         const Tree* T = &scene->trees[i];
         glPushMatrix();
           glTranslatef(T->position.x, T->position.y, T->position.z);
-          glScalef   (0.2f, 0.2f, 0.2f);
+          glScalef(0.2f, 0.2f, 0.2f);
           glBindTexture(GL_TEXTURE_2D, T->trunk_tex);
           draw_model(&T->trunk_model);
           glBindTexture(GL_TEXTURE_2D, T->leaves_tex);
@@ -152,27 +154,26 @@ void render_scene(const Scene* scene)
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
 
-    {
-        float s = scene->fire_strength;
+    render_explosion(&scene->explosion);
 
-        glPushMatrix();
-            glTranslatef(
-                scene->explosion.position.x,
-                scene->explosion.position.y,
-                scene->explosion.position.z
-            );
+    glPushMatrix();
+    glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
 
-            glPushMatrix();
-                glScalef(s, s, s);
-                glColor4f(1.0f, 1.0f, 1.0f, s);
+      glTranslatef(3.0f, 0.0f, 0.0f);
+      glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
+      glScalef(0.05f, 0.05f, 0.05f);
 
-                render_explosion(&scene->explosion);
-            glPopMatrix();
+      glEnable(GL_TEXTURE_2D);
+      glEnable(GL_LIGHTING);
+      glColor3f(1.0f, 1.0f, 1.0f);
 
-        glPopMatrix();
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    }
+      draw_model(&scene->campfire_model);
+
+    glPopAttrib();
+    glPopMatrix();
 }
+
+
 
 
 void draw_origin()

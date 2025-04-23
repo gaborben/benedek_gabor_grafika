@@ -39,6 +39,9 @@ typedef struct Scene
     Tree* trees;
     int number_of_trees;
     Tree tree_prefab;
+
+    Model campfire_model;
+    GLuint campfire_tex;
 } Scene;
 
 /**
