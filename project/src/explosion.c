@@ -104,7 +104,6 @@ void render_explosion(const Explosion* e)
     glEnable(GL_TEXTURE_2D);
 }
 
-
 void destroy_explosion(Explosion* explosion)
 {
     free_model(&explosion->model);

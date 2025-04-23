@@ -213,8 +213,6 @@ void handle_app_events(App* app)
     }
 }
 
-
-
 void update_app(App* app)
 {
     double current_time = SDL_GetTicks() / 1000.0;
@@ -245,7 +243,6 @@ void update_app(App* app)
     //     app->is_running = false;
     // }
 }
-
 
 void render_app(App* app)
 {
@@ -292,7 +289,6 @@ void render_app(App* app)
 
     SDL_GL_SwapWindow(app->window);
 }
-
 
 void destroy_app(App* app)
 {
@@ -343,7 +339,6 @@ static void draw_image(const App* app, GLuint texture)
     glMatrixMode(GL_MODELVIEW);
 }
 
-
 static void collect_sticks(App* app)
 {
     const float COLLECT_RADIUS = 2.0f;
@@ -363,7 +358,6 @@ static void collect_sticks(App* app)
         }
     }
 }
-
 
 static int find_near_tree_index(const App* app, float radius)
 {
