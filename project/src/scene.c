@@ -57,17 +57,32 @@ void init_scene(Scene* scene)
     scene->material.shininess = 0.0;
 }
 
-void set_lighting()
+void set_lighting(const vec3 light_pos, float light_intensity)
 {
-    float ambient_light[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-    float diffuse_light[] = { 1.0f, 1.0f, 1.0, 1.0f };
-    float specular_light[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-    float position[] = { 0.0f, 0.0f, 10.0f, 1.0f };
+    // Ambient komponens (háttérfény): a tűz erősségének 20%-a
+    GLfloat amb[]  = { 0.2f * light_intensity,
+                       0.1f * light_intensity,
+                       0.05f* light_intensity,
+                       1.0f };
+    glLightfv(GL_LIGHT0, GL_AMBIENT, amb);
 
-    glLightfv(GL_LIGHT0, GL_AMBIENT, ambient_light);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse_light);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, specular_light);
-    glLightfv(GL_LIGHT0, GL_POSITION, position);
+    // Diffuse komponens (irányfény): a tűz fő fényereje
+    GLfloat dif[]  = { light_intensity,
+                       light_intensity * 0.8f,
+                       light_intensity * 0.4f,
+                       1.0f };
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, dif);
+
+    // Speculáris: opcionális, hagyhatod fehéren
+    GLfloat spec[] = { light_intensity,
+                       light_intensity,
+                       light_intensity,
+                       1.0f };
+    glLightfv(GL_LIGHT0, GL_SPECULAR, spec);
+
+    // Fény pozíciója: pontfény a tűz helyén
+    GLfloat pos[]  = { light_pos.x, light_pos.y, light_pos.z, 1.0f };
+    glLightfv(GL_LIGHT0, GL_POSITION, pos);
 }
 
 void set_material(const Material* material)
@@ -102,42 +117,17 @@ void update_scene(Scene* scene, double delta)
     update_explosion(&scene->explosion, delta);
 }
 
-// void render_scene(const Scene* scene)
-// {
-//     set_material(&(scene->material));
-//     set_lighting();
-//     draw_ground();  
-//     //draw_origin();
-//     //draw_model(&(scene->cube));
-
-//     glEnable(GL_TEXTURE_2D);
-//     glEnable(GL_BLEND);
-//     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-//         for (int i = 0; i < scene->number_of_trees; ++i) {
-//         const Tree* T = &scene->trees[i];
-//         glPushMatrix();
-//           glTranslatef(T->position.x, T->position.y, T->position.z);
-//           glScalef   (0.2f, 0.2f, 0.2f);
-
-//           glBindTexture(GL_TEXTURE_2D, T->trunk_tex);
-//           draw_model(&T->trunk_model);
-
-//           glBindTexture(GL_TEXTURE_2D, T->leaves_tex);
-//           draw_model(&T->leaves_model);
-//         glPopMatrix();
-//     }
-
-//     glDisable(GL_BLEND);
-//     glDisable(GL_TEXTURE_2D);
-
-//     render_explosion(&scene->explosion);
-// }
-
-void render_scene(const Scene* scene)
+void render_scene(const Scene* scene, float brightness)
 {
+
+    vec3 fire_pos = scene->explosion.position;
+    float strength = scene->fire_strength;
+
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    set_lighting(fire_pos, strength);
+
     set_material(&scene->material);
-    set_lighting();
     draw_ground();
 
     glEnable(GL_TEXTURE_2D);
@@ -179,7 +169,8 @@ void render_scene(const Scene* scene)
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, scene->campfire_tex);
 
-        glColor3f(1.0f, 1.0f, 1.0f);
+        //glColor3f(1.0f, 1.0f, 1.0f);
+        glColor3f(brightness, brightness, brightness);
 
         draw_model(&scene->campfire_model);
     glPopAttrib();

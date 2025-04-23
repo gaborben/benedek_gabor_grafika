@@ -52,7 +52,8 @@ void init_scene(Scene* scene);
 /**
  * Set the lighting of the scene.
  */
-void set_lighting();
+void set_lighting(const vec3 light_pos, float light_intensity);
+
 
 /**
  * Set the current material.
@@ -67,7 +68,7 @@ void update_scene(Scene* scene, double delta);
 /**
  * Render the scene objects.
  */
-void render_scene(const Scene* scene);
+void render_scene(const Scene* scene, float brightness);
 
 /**
  * Draw the origin of the world coordinate system.

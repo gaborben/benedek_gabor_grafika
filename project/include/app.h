@@ -25,6 +25,7 @@ typedef struct App
     bool show_guide;
     GLuint guide_texture;
     GLuint game_over_texture;
+    float feed_cooldown;
 } App;
 
 /**

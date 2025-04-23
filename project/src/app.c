@@ -57,6 +57,7 @@ void init_app(App* app, int width, int height)
     app->brightness = 1.0f;
 
     app->sticks = 0;
+    app->feed_cooldown  = 0.0f;
 
     app->show_guide = false;
     app->guide_texture = load_texture("assets/textures/guide.png");
@@ -223,12 +224,29 @@ void update_app(App* app)
     update_scene(&app->scene,  delta);
 
     if (app->scene.game_state == PLAYING) {
-        const float DECAY_RATE = 1.0f / 20.0f;
+        const float DECAY_RATE = 1.0f / 35.0f;
         app->scene.fire_strength -= delta * DECAY_RATE;
         if (app->scene.fire_strength <= 0.0f) {
             app->scene.fire_strength = 0.0f;
             app->scene.game_state = GAME_OVER;
         }
+
+        if (app->feed_cooldown > 0.0f) {
+            app->feed_cooldown = fmaxf(0.0f, app->feed_cooldown - delta);
+        }
+
+        if (app->sticks > 0) {
+            float dx = app->camera.position.x - app->scene.explosion.position.x;
+            float dy = app->camera.position.y - app->scene.explosion.position.y;
+            float dist = sqrtf(dx*dx + dy*dy);
+            if (dist < 2.0f && app->feed_cooldown == 0.0f) {
+                app->sticks -= 1;
+                app->scene.fire_strength = 1.0f;
+                app->feed_cooldown = 5.0f;
+            }
+        }
+
+        app->brightness = app->scene.fire_strength;
 
         app->scene.explosion.position = (vec3){ 3.0f, 0.0f, 0.0f };
 
@@ -259,7 +277,7 @@ void render_app(App* app)
 
         glPushMatrix();
             set_view(&app->camera);
-            render_scene(&app->scene);
+            render_scene(&app->scene, app->brightness);
         glPopMatrix();
 
         glColor3f(1.0f, 1.0f, 1.0f);
