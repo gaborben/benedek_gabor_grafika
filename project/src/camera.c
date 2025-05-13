@@ -82,7 +82,6 @@ void rotate_camera(Camera* camera, double horizontal, double vertical)
     }
 }
 
-
 void set_camera_speed(Camera* camera, double speed)
 {
     camera->speed.y = speed;
@@ -116,8 +115,6 @@ void jump_camera(Camera* camera)
         camera->vertical_speed = JUMP_IMPULSE;
     }
 }
-
-
 
 void show_texture_preview()
 {

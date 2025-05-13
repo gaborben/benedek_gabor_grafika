@@ -38,6 +38,8 @@ void init_scene(Scene* scene)
     //load_model(&scene->campfire_model, "assets/models/campfire2/campfire2.obj");
     //printf("campfire_tex = %u\n", scene->campfire_tex);
 
+    load_model(&scene->rock_model, "assets/models/low-poly-rock-tri.obj");
+
     scene->game_state = PLAYING;
     scene->fire_strength = 1.0f;
 
@@ -210,8 +212,37 @@ void render_scene(const Scene* scene, float brightness)
         draw_model(&scene->campfire_model);
     glPopAttrib();
     glPopMatrix();
-}
 
+    // rock
+    glPushMatrix();
+
+    vec3 fp = scene->explosion.position;
+    glTranslatef(fp.x + 2.0f, fp.y, fp.z);
+    glRotatef(90, 1,0,0);
+    glScalef(0.005f, 0.005f, 0.005f);
+
+    glEnable(GL_NORMALIZE);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    glEnable(GL_COLOR_MATERIAL);
+
+    glDisable(GL_TEXTURE_2D);
+    
+    GLfloat mat_diffuse [] = { 0.5f, 0.5f, 0.5f, 1.0f };
+    GLfloat mat_specular[] = { 0.1f, 0.1f, 0.1f, 1.0f }; //?
+    GLfloat mat_shininess[] = { 10.0f };
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,  mat_diffuse);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+
+    glColor3f(brightness, brightness, brightness);
+    glDisable(GL_COLOR_MATERIAL);
+    draw_model(&scene->rock_model);
+    glEnable(GL_COLOR_MATERIAL);
+
+    glPopMatrix();
+}
 
 void draw_origin()
 {

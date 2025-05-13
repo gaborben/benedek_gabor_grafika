@@ -42,6 +42,9 @@ typedef struct Scene
 
     Model campfire_model;
     GLuint campfire_tex;
+
+    Model  rock_model;
+
 } Scene;
 
 /**
