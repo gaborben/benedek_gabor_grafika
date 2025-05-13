@@ -216,7 +216,7 @@ void update_app(App* app)
     double current_time = SDL_GetTicks() / 1000.0;
     double delta = current_time - app->uptime;
     app->uptime = current_time;
-
+    
     vec3 oldCamPos = app->camera.position;
 
     update_camera(&app->camera, delta);
@@ -289,6 +289,17 @@ void render_app(App* app)
 
         glPushMatrix();
             set_view(&app->camera);
+
+            // glEnable(GL_LIGHTING);
+            // glEnable(GL_LIGHT0);
+            // GLfloat globalAmb[4] = {
+            //     0.2f * app->brightness,
+            //     0.2f * app->brightness,
+            //     0.2f * app->brightness,
+            //     1.0f
+            // };
+            // glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globalAmb);
+
             render_scene(&app->scene, app->brightness);
         glPopMatrix();
 

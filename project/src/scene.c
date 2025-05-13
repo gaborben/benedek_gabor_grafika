@@ -8,6 +8,9 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include <SDL2/SDL.h>
+#include <math.h>
+
 int grass_texture;
 
 void init_scene(Scene* scene)
@@ -119,45 +122,79 @@ void update_scene(Scene* scene, double delta)
 
 void render_scene(const Scene* scene, float brightness)
 {
+    //flicker
+    double t = SDL_GetTicks() / 1000.0;
+    float base_strength = scene->fire_strength;
+    float flicker_intensity =
+          0.10f * sinf(t * 10.3f)
+        + 0.06f * sinf(t * 17.7f)
+        + 0.04f * (((rand() % 100) / 100.0f) - 0.5f);
+    float light_strength = fminf(1.0f, fmaxf(0.0f, base_strength + flicker_intensity));
 
     vec3 fire_pos = scene->explosion.position;
-    float strength = scene->fire_strength;
+    vec3 light_pos = {
+        fire_pos.x + 0.1f  * sinf(t * 5.0f),
+        fire_pos.y + 0.05f * sinf(t * 7.0f),
+        fire_pos.z
+    };
 
+    //light
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
-    set_lighting(fire_pos, strength);
 
+    GLfloat lightCol[4] = {
+        1.0f,
+        0.3f + 0.7f * light_strength,
+        0.1f * (1.0f - light_strength),
+        1.0f
+    };
+    GLfloat lightPosArr[4] = {
+        light_pos.x,
+        light_pos.y,
+        light_pos.z,
+        1.0f
+    };
+    glLightfv(GL_LIGHT0, GL_POSITION, lightPosArr);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightCol);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, lightCol);
+    glLightf (GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.5f);
+    glLightf (GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.05f);
+    glLightf (GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.01f);
+
+    //ground
     set_material(&scene->material);
     draw_ground();
 
+    //trees
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     for (int i = 0; i < scene->number_of_trees; ++i) {
         const Tree* T = &scene->trees[i];
         glPushMatrix();
-          glTranslatef(T->position.x, T->position.y, T->position.z);
-          glScalef(0.2f, 0.2f, 0.2f);
-          glBindTexture(GL_TEXTURE_2D, T->trunk_tex);
-          draw_model(&T->trunk_model);
-          glBindTexture(GL_TEXTURE_2D, T->leaves_tex);
-          draw_model(&T->leaves_model);
+            glTranslatef(T->position.x, T->position.y, T->position.z);
+            glScalef(0.2f, 0.2f, 0.2f);
+            glBindTexture(GL_TEXTURE_2D, T->trunk_tex);
+            draw_model(&T->trunk_model);
+            glBindTexture(GL_TEXTURE_2D, T->leaves_tex);
+            draw_model(&T->leaves_model);
         glPopMatrix();
     }
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
 
+    //fire
     render_explosion(&scene->explosion);
 
+    //campfire
     glPushMatrix();
     glPushAttrib(
           GL_ENABLE_BIT
         | GL_CURRENT_BIT
-        | GL_LIGHTING_BIT
         | GL_TEXTURE_BIT
         | GL_DEPTH_BUFFER_BIT
     );
-        glTranslatef(3.0f, 0.0f, 0.2f);
+        glTranslatef(fire_pos.x, fire_pos.y, fire_pos.z + 0.2f);
         glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
         glRotatef(180.0f, 1.0f, 0.0f, 0.0f);
         glScalef(0.15f, 0.15f, 0.15f);
@@ -169,14 +206,12 @@ void render_scene(const Scene* scene, float brightness)
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, scene->campfire_tex);
 
-        //glColor3f(1.0f, 1.0f, 1.0f);
         glColor3f(brightness, brightness, brightness);
-
         draw_model(&scene->campfire_model);
     glPopAttrib();
     glPopMatrix();
-
 }
+
 
 void draw_origin()
 {
