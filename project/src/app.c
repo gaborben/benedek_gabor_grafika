@@ -4,10 +4,6 @@
 
 #include <SDL2/SDL_image.h>
 
-static void draw_image(const App* app, GLuint texture);
-static void collect_sticks(App* app);
-static int find_near_tree_index(const App* app, float radius);
-
 void init_app(App* app, int width, int height)
 {
     int error_code;
@@ -89,6 +85,7 @@ void init_opengl()
 
     glEnable(GL_COLOR_MATERIAL);
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+
 }
 
 void reshape(GLsizei width, GLsizei height)
@@ -279,6 +276,7 @@ void update_app(App* app)
 void render_app(App* app)
 {
     //glClearColor(app->brightness, app->brightness, app->brightness, 1.0f);
+
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

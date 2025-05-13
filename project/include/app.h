@@ -63,4 +63,8 @@ void render_app(App* app);
  */
 void destroy_app(App* app);
 
+static void draw_image(const App* app, GLuint texture);
+static void collect_sticks(App* app);
+static int find_near_tree_index(const App* app, float radius);
+
 #endif /* APP_H */

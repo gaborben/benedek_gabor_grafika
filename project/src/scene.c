@@ -59,28 +59,28 @@ void init_scene(Scene* scene)
 
 void set_lighting(const vec3 light_pos, float light_intensity)
 {
-    // Ambient komponens (háttérfény): a tűz erősségének 20%-a
+    // Ambient
     GLfloat amb[]  = { 0.2f * light_intensity,
                        0.1f * light_intensity,
                        0.05f* light_intensity,
                        1.0f };
     glLightfv(GL_LIGHT0, GL_AMBIENT, amb);
 
-    // Diffuse komponens (irányfény): a tűz fő fényereje
+    // Diffuse
     GLfloat dif[]  = { light_intensity,
                        light_intensity * 0.8f,
                        light_intensity * 0.4f,
                        1.0f };
     glLightfv(GL_LIGHT0, GL_DIFFUSE, dif);
 
-    // Speculáris: opcionális, hagyhatod fehéren
+    // Specular
     GLfloat spec[] = { light_intensity,
                        light_intensity,
                        light_intensity,
                        1.0f };
     glLightfv(GL_LIGHT0, GL_SPECULAR, spec);
 
-    // Fény pozíciója: pontfény a tűz helyén
+    // Position
     GLfloat pos[]  = { light_pos.x, light_pos.y, light_pos.z, 1.0f };
     glLightfv(GL_LIGHT0, GL_POSITION, pos);
 }
