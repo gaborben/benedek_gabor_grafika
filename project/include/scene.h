@@ -25,6 +25,15 @@ typedef struct Tree {
     bool   collected;
 } Tree;
 
+typedef struct Rock {
+    Model rock_model;
+    GLuint rock_texture;
+
+    vec3 rock_center;
+    float rock_radius;
+    float rock_top;
+} Rock;
+
 typedef struct Scene
 {
     GameState game_state;
@@ -43,7 +52,7 @@ typedef struct Scene
     Model campfire_model;
     GLuint campfire_tex;
 
-    Model  rock_model;
+    Rock rock;
 
 } Scene;
 

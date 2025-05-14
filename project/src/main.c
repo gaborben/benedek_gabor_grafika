@@ -7,7 +7,11 @@
  */
 int main(int argc, char* argv[])
 {
+    (void)argc; (void)argv;
+    
     App app;
+
+    highscore_init();
 
     init_app(&app, 800, 600);
     while (app.is_running) {

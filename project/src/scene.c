@@ -38,7 +38,17 @@ void init_scene(Scene* scene)
     //load_model(&scene->campfire_model, "assets/models/campfire2/campfire2.obj");
     //printf("campfire_tex = %u\n", scene->campfire_tex);
 
-    load_model(&scene->rock_model, "assets/models/low-poly-rock-tri.obj");
+    load_model(&scene->rock.rock_model, "assets/models/low-poly-rock-tri.obj");
+    scene->rock.rock_texture = load_texture("assets/textures/rock.jpg");
+
+    scene->rock.rock_center = (vec3){
+        scene->explosion.position.x + 2.0f,
+        scene->explosion.position.y,
+        scene->explosion.position.z
+    };
+
+    scene->rock.rock_radius = 0.5f;
+    scene->rock.rock_top = scene->rock.rock_center.z + 0.15f;
 
     scene->game_state = PLAYING;
     scene->fire_strength = 1.0f;
@@ -225,21 +235,26 @@ void render_scene(const Scene* scene, float brightness)
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
+    
+    glColor3f(brightness, brightness, brightness);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, scene->rock.rock_texture);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
     glEnable(GL_COLOR_MATERIAL);
 
-    glDisable(GL_TEXTURE_2D);
-    
-    GLfloat mat_diffuse [] = { 0.5f, 0.5f, 0.5f, 1.0f };
-    GLfloat mat_specular[] = { 0.1f, 0.1f, 0.1f, 1.0f }; //?
-    GLfloat mat_shininess[] = { 10.0f };
-    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,  mat_diffuse);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
+    GLfloat mat_diffuse []  = { 1.0f, 1.0f, 1.0f, 1.0f };
+    GLfloat mat_specular[]  = { 1.0f, 1.0f, 1.0f, 1.0f };
+    GLfloat mat_shininess[] = { 50.0f };
+
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
 
-    glColor3f(brightness, brightness, brightness);
-    glDisable(GL_COLOR_MATERIAL);
-    draw_model(&scene->rock_model);
+    draw_model(&scene->rock.rock_model);
+
     glEnable(GL_COLOR_MATERIAL);
+    glDisable(GL_TEXTURE_2D);
 
     glPopMatrix();
 }

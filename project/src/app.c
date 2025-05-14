@@ -213,15 +213,18 @@ void handle_app_events(App* app)
 
 void update_app(App* app)
 {
+    // time
     double current_time = SDL_GetTicks() / 1000.0;
     double delta = current_time - app->uptime;
     app->uptime = current_time;
     
+    // move
     vec3 oldCamPos = app->camera.position;
 
     update_camera(&app->camera, delta);
     update_scene(&app->scene,  delta);
 
+    // tree collision
     const float TREE_COLL_RADIUS = 0.5f;
     for (int i = 0; i < app->scene.number_of_trees; ++i) {
         vec3 tp = app->scene.trees[i].position;
@@ -234,6 +237,26 @@ void update_app(App* app)
         }
     }
 
+    // rock collision
+    {
+        Rock* rock = &app->scene.rock;
+        vec3 rc   = rock->rock_center;
+
+        float dx = app->camera.position.x - rc.x;
+        float dy = app->camera.position.y - rc.y;
+        float dist= sqrtf(dx*dx + dy*dy);
+
+        if (dist < rock->rock_radius) {
+            if (app->camera.position.z < rock->rock_top + 1.0f) {
+                app->camera.position = oldCamPos;
+            }
+            else {
+                app->camera.position.z = rock->rock_top + 1.05f;
+            }
+        }
+    }
+
+    // game state
     if (app->scene.game_state == PLAYING) {
         const float DECAY_RATE = 1.0f / 35.0f;
         app->scene.fire_strength -= delta * DECAY_RATE;
@@ -257,20 +280,13 @@ void update_app(App* app)
             }
         }
 
+        // fire
         app->brightness = app->scene.fire_strength;
 
         app->scene.explosion.position = (vec3){ 3.0f, 0.0f, 0.0f };
 
         app->scene.explosion.size_scale = app->scene.fire_strength;
     }
-
-    // if (app->scene.fire_strength <= 0.0f) {
-    //     app->scene.game_state = GAME_OVER;
-    // }
-
-    // if (app->scene.game_state == GAME_OVER) {
-    //     app->is_running = false;
-    // }
 }
 
 void render_app(App* app)
@@ -289,16 +305,6 @@ void render_app(App* app)
 
         glPushMatrix();
             set_view(&app->camera);
-
-            // glEnable(GL_LIGHTING);
-            // glEnable(GL_LIGHT0);
-            // GLfloat globalAmb[4] = {
-            //     0.2f * app->brightness,
-            //     0.2f * app->brightness,
-            //     0.2f * app->brightness,
-            //     1.0f
-            // };
-            // glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globalAmb);
 
             render_scene(&app->scene, app->brightness);
         glPopMatrix();
@@ -327,6 +333,8 @@ void render_app(App* app)
             draw_text_2d(buf, (float)w - 150.0f, 20.0f, 2.0f);
         }
     }
+
+    highscore_update_and_draw();
 
     SDL_GL_SwapWindow(app->window);
 }

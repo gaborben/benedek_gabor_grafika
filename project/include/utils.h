@@ -39,4 +39,8 @@ double degree_to_radian(double degree);
 
 void draw_text_2d(const char* text, float x, float y, float scale);
 
+void highscore_init(void);
+
+void highscore_update_and_draw(void);
+
 #endif /* UTILS_H */
