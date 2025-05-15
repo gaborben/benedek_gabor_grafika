@@ -2,8 +2,9 @@
 #define CAMERA_H
 
 #include "utils.h"
-
 #include <stdbool.h>
+#include <GL/gl.h>
+#include <math.h>
 
 #define JUMP_IMPULSE    3.0f   //unit/sec
 #define GRAVITY         9.81f

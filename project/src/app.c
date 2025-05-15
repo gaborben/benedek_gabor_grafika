@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <math.h>
 #include "app.h"
-
-#include <SDL2/SDL_image.h>
 
 void init_app(App* app, int width, int height)
 {

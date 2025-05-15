@@ -4,11 +4,21 @@
 #include "camera.h"
 #include "texture.h"
 #include "explosion.h"
+#include "utils.h"
 
 #include <GL/gl.h>
+#include <GL/glu.h>
+
 #include <obj/model.h>
-#include "utils.h"
+#include <obj/load.h>
+#include <obj/draw.h>
+
 #include <stdbool.h>
+#include <stdlib.h>
+#include <time.h>
+#include <math.h>
+
+#include <SDL2/SDL.h>
 
 typedef enum {
     PLAYING,

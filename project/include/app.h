@@ -6,8 +6,10 @@
 
 #include <SDL2/SDL.h>
 #include <GL/gl.h>
-
 #include <stdbool.h>
+#include <stdio.h>
+#include <math.h>
+#include <SDL2/SDL_image.h>
 
 #define VIEWPORT_RATIO (4.0 / 3.0)
 #define VIEWPORT_ASPECT 50.0

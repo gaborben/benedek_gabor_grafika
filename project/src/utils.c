@@ -7,8 +7,8 @@
 #include <math.h>
 #include <stdio.h>
 
-static float   hs_value;
-static Uint32  hs_start;
+static float hs_value;
+static Uint32 hs_start;
 
 double degree_to_radian(double degree)
 {
@@ -67,7 +67,7 @@ void draw_text_2d(const char* text, float x, float y, float scale)
 
 void highscore_init(void) {
   hs_start = SDL_GetTicks();
-  FILE* f = fopen("highscore.txt","r");
+  FILE* f = fopen("data/highscore.txt","r");
   if(f){ fscanf(f,"%f",&hs_value); fclose(f);}
   else  hs_value = 0;
 }
@@ -80,7 +80,7 @@ void highscore_update_and_draw(void) {
 
     if (elapsed_sec > (unsigned int)hs_value) {
         hs_value = elapsed_sec;
-        FILE* f = fopen("highscore.txt", "w");
+        FILE* f = fopen("data/highscore.txt", "w");
         if (f) {
             fprintf(f, "%u\n", elapsed_sec);
             fclose(f);

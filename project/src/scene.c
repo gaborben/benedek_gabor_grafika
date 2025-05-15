@@ -1,16 +1,5 @@
 #include "scene.h"
 
-#include <obj/load.h>
-#include <obj/draw.h>
-
-#include <GL/glu.h>
-
-#include <stdlib.h>
-#include <time.h>
-
-#include <SDL2/SDL.h>
-#include <math.h>
-
 int grass_texture;
 
 void init_scene(Scene* scene)

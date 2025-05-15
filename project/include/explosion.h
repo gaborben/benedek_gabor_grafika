@@ -5,6 +5,12 @@
 #include "utils.h"
 
 #include <obj/model.h>
+#include <obj/load.h>
+#include <obj/draw.h>
+#include <GL/gl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 
 #define N_PARTICLES 500
 

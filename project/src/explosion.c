@@ -1,12 +1,6 @@
 #include "explosion.h"
 
-#include <obj/load.h>
-#include <obj/draw.h>
-#include <GL/gl.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 
 #define GRAVITY_Z -1.5
 #define MAX_LIFETIME 3.0
@@ -16,6 +10,10 @@
 #define BASE_RADIUS 0.2
 #define UP_SPEED 0.5
 #define SIDE_SPREAD 0.05
+
+const float fireX =  3.0f;
+const float fireY =  0.0f;
+const float fireZ =  0.0f;
 
 static void reset_particle(Particle* p)
 {
@@ -63,10 +61,6 @@ void update_explosion(Explosion* explosion, double elapsed_time)
         p->position.z += p->velocity.z * elapsed_time;
     }
 }
-
-const float fireX =  3.0f;
-const float fireY =  0.0f;
-const float fireZ =  0.0f;
 
 void render_explosion(const Explosion* e)
 {

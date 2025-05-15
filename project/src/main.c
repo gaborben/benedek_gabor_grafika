@@ -1,7 +1,5 @@
 #include "app.h"
 
-#include <stdio.h>
-
 /**
  * Main function
  */
