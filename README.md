@@ -33,24 +33,24 @@ A sikeres build után a `build/project.exe` indítja a játékot.
 
 ## Fájlstruktúra
 
-project/··
-│··
-├── src/            # C források (.c)··
-├── include/        # Fejlécek (.h)··
-├── assets/         # Modellek és textúrák··
-│   ├── models/··
-│   └── textures/··
-├── data/           # Futásidejű adatok (highscore.txt)··
-├── build/          # Fordított állományok (project.exe)··
-├── Makefile        # Build script··
-└── README.md       # Dokumentáció··
+project/<br>
+│<br>
+├── src/            # C források (.c)<br>
+├── include/        # Fejlécek (.h)<br>
+├── assets/         # Modellek és textúrák<br>
+│   ├── models/<br>
+│   └── textures/<br>
+├── data/           # Futásidejű adatok (highscore.txt)<br>
+├── build/          # Fordított állományok (project.exe)<br>
+├── Makefile        # Build script<br>
+└── README.md       # Dokumentáció<br>
 
 ## Billentyűzet-kiosztás
 
-W/A/S/D:          mozogás··
-Egér mozgatás:    körbenézés··
-Space:            ugrás··
-Left Shift:       sprint··
-E:                faágak gyűjtéése··
-F1:               on-screen guide ki-/bekapcsolása··
-Esc:              kilépés a játékból··
+W/A/S/D:          mozogás<br>
+Egér mozgatás:    körbenézés<br>
+Space:            ugrás<br>
+Left Shift:       sprint<br>
+E:                faágak gyűjtéése<br>
+F1:               on-screen guide ki-/bekapcsolása<br>
+Esc:              kilépés a játékból<br>
